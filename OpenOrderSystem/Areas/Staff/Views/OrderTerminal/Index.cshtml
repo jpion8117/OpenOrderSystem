@@ -1,0 +1,170 @@
+﻿@using OpenOrderSystem.Services
+@inject ConfigurationService _config
+<div class="printer-tray">
+    <i id="printer_connection_status" class="fa-sharp fa-thin fa-print mx-1 fa-fade printer-status-icon pending"></i>
+    <i id="printer_paper_status" class="fa-sharp fa-light fa-toilet-paper-under-slash fa-rotate-180 mx-1 printer-status-icon default"></i>
+    <i id="printer_error_status" class="fa-sharp fa-thin fa-triangle-exclamation mx-1 default printer-status-icon default"></i>
+</div>
+<div id="notification_window" class="closed">
+    <div class="notification-head">
+        <button id="notification_window_close" class="btn-close float-end pe-3"></button>
+        <h2 class="date ps-2"></h2>
+        <h3 class="time ps-2"></h3>
+        <hr />
+        <h3 class="text-center">Notifications</h3>
+        <hr />
+    </div>
+    <div id="notifications"></div>
+</div>
+<div class="toolbar visually-hidden d-flex">
+    <div class="list-group list-group-horizontal text-center flex-grow-1">
+        <a href="#" class="list-group-item py-0 d-flex">
+            <i class="fa-sharp fa-light fa-up fs-3 my-auto"></i>
+        </a>
+        <a href="#" class="list-group-item py-0 d-flex notification-window-opener">
+            <i class="fa-sharp fa-light fa-bell m-auto fs-3 px-0 active-notifications"></i>
+        </a>
+        <a asp-action="WriteTicket" class="list-group-item py-0 my-auto fs-3 d-block">
+            <span class="fa-layers fa-fw">
+                <i class="fa-solid fa-circle text-success"></i>
+                <i class="fa-sharp fa-solid fa-plus text-white" data-fa-transform="shrink-7"></i>
+            </span>
+        </a>
+        <div class="list-group-item py-0 d-flex">
+            <button class="reload-btn btn btn-clean list-group-item py-0 fs-3">
+                <span class="fa-layers fa-fw btn btn-clean">
+                    <i class="fa-solid fa-circle text-warning"></i>
+                    <i class="fa-sharp fa-light fa-rotate-right text-black" data-fa-transform="shrink-7"></i>
+                </span>
+            </button>
+        </div>
+        <div class="list-group-item py-0 d-flex">
+            <button class="logout-btn btn btn-clean list-group-item py-0 fs-3">
+                <span class="fa-layers fa-fw btn btn-clean">
+                    <i class="fa-solid fa-circle text-danger"></i>
+                    <i class="fa-sharp fa-regular fa-power-off text-white" data-fa-transform="shrink-7"></i>
+                </span>
+            </button>
+        </div>
+        <div class="list-group-item py-0">
+            <span class="time-basic d-block py-0 my-0"></span>
+            <span class="date d-block py-0 my-0"></span>
+        </div>
+    </div>
+</div>
+<div class="d-flex button-tray">
+    <a asp-action="WriteTicket" class="my-auto btn btn-clean fs-1 d-block">
+        <span class="fa-layers fa-fw">
+            <i class="fa-solid fa-circle text-success"></i>
+            <i class="fa-sharp fa-solid fa-plus text-white" data-fa-transform="shrink-7"></i>
+        </span>
+    </a>
+    <button class="reload-btn btn btn-clean fs-1">
+        <span class="fa-layers fa-fw">
+            <i class="fa-solid fa-circle text-warning"></i>
+            <i class="fa-sharp fa-light fa-rotate-right text-black" data-fa-transform="shrink-7"></i>
+        </span>
+    </button>
+    <button class="logout-btn btn btn-clean fs-1">
+        <span class="fa-layers fa-fw">
+            <i class="fa-solid fa-circle text-danger"></i>
+            <i class="fa-sharp fa-regular fa-power-off text-white" data-fa-transform="shrink-7"></i>
+        </span>
+    </button>
+    <form id="logout_form" asp-action="PrincessLogout" method="post" enctype="text/plain">
+    </form>
+</div>
+
+<header class="w-100 text-light bg-dark placeholder-glow" style="min-height:130px">
+    <span class="placeholder col-12" style="min-height:130px"></span>
+</header>
+
+<div class="accordion" id="order_terminal">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="recieved_orders_heading">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#recieved_orders" aria-expanded="true" aria-controls="recieved_orders">
+                Unconfirmed Orders
+            </button>
+        </h2>
+        <div id="recieved_orders" class="accordion-collapse collapse show" aria-labelledby="recieved_orders_heading">
+            <div id="recieved_orders_body" class="accordion-body placeholder-glow" style="min-height:50px; width:100%">
+                <span class="placeholder col-12" style="min-height:50px"></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="in_progress_heading">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#in_progress" aria-expanded="true" aria-controls="in_progress">
+                In-progress Orders
+            </button>
+        </h2>
+        <div id="in_progress" class="accordion-collapse collapse show" aria-labelledby="in_progress_heading">
+            <div id="in_progress_body" class="accordion-body placeholder-glow" style="min-height:50px; width:100%">
+                <span class="placeholder col-12" style="min-height:50px"></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="ready_heading">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ready" aria-expanded="true" aria-controls="ready">
+                Ready for Pickup
+            </button>
+        </h2>
+        <div id="ready" class="accordion-collapse collapse show" aria-labelledby="ready_heading">
+            <div id="ready_body" class="accordion-body placeholder-glow" style="min-height:50px; width:100%">
+                <span class="placeholder col-12" style="min-height:50px"></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="complete_heading">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#complete" aria-expanded="false" aria-controls="complete">
+                Completed Orders
+            </button>
+        </h2>
+        <div id="complete" class="accordion-collapse collapse" aria-labelledby="complete-heading">
+            <div id="completed_orders_body" class="accordion-body placeholder-glow" style="min-height:50px; width:100%">
+                <span class="placeholder col-12" style="min-height:50px"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section AppendHead {
+    <link rel="stylesheet" href="~/css/printerStatus.css" />
+}
+
+@section Scripts {
+    <!-- Terminal interactivity scripts -->
+    <script src="~/js/SOTClient.js"></script>
+    <script src="~/lib/ePOS_SDK_JavaScript_v2.27.0b/epos-2.27.0.js"></script>
+    <script>
+        window.addEventListener('scroll', (event) => {
+            if (window.scrollY > 133) {
+                $('.toolbar').removeClass('visually-hidden fade')
+            }
+            else {
+                $('.toolbar').addClass('fade');
+            }
+        });
+    </script>
+    <script>
+        $('.logout-btn').on('click', logout)
+        function logout() {
+            document.getElementById('logout_form').submit();
+        }
+        $('.reload-btn').on('click', reload)
+        function reload() {
+            window.location.reload();
+        }
+    </script>
+    <script>
+        var client = new terminal_client("@(_config.Settings.LocalPrinterAddress)");
+
+        client.startUpdateLoop()
+        client.update();
+    </script>
+}

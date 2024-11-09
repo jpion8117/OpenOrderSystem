@@ -1,0 +1,41 @@
+﻿@using OpenOrderSystem.ViewModels.Order
+@model IndexVM
+@{
+    TimeZoneInfo.TryFindSystemTimeZoneById("Eastern Standard Time", out var localTimeZone);
+    localTimeZone = localTimeZone != null ? localTimeZone : TimeZoneInfo.Local;
+}
+<div class="h-100 d-flex">
+    <div class="col-md-8 col-lg-6 my-auto mx-auto p-2">
+        <form asp-action="Index" class="bg-dark w-100 p-4 text-light rounded rounded-5" method="get">
+            <h1 class="text-center mb-3">VM Order Locator</h1>
+            <div class="form-floating text-black my-2">
+                <span class="text-danger" asp-validation-for="OrderId"></span>
+                <input class="form-control" asp-for="OrderId" placeholder="@Html.DisplayName(Model.OrderId.ToString())" />
+                <label asp-for="OrderId"></label>
+            </div>
+            <h1 class="text-center">&mdash; OR &mdash;</h1>
+            <div class="form-floating text-black my-2">
+                <span class="text-danger" asp-validation-for="Phone"></span>
+                <input class="form-control" asp-for="Phone" placeholder="@Html.DisplayName(Model.Phone?.ToString())" />
+                <label asp-for="Phone"></label>
+            </div>
+            <div class="w-100 d-flex mt-4">
+                <button class="btn btn-primary mx-auto" type="submit">Search</button>
+            </div>
+            @if (Model.MyOrders.Any())
+            {
+                <h3>We're sorry, we found multiple orders with that phone number...</h3>
+                <h6>Please select the correct order below</h6>
+                <ul>
+                    @foreach (var order in Model.MyOrders)
+                    {
+                        <li>
+                            <a asp-action="Status" asp-route-id="@order.Id">#@order.Id - @order.Customer?.Name - @TimeZoneInfo.ConvertTimeFromUtc(order.OrderPlaced, localTimeZone).ToString("g")</a>
+                        </li>
+                    }
+                </ul>
+            }
+        </form>
+    </div>
+
+</div>

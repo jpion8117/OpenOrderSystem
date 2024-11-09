@@ -1,0 +1,138 @@
+﻿@using OpenOrderSystem.ViewModels.Order
+@using OpenOrderSystem.Data.DataModels
+@model StatusVM
+
+<header class="row bg-dark text-white  rounded-2">
+    <div class="col-md-2 col-sm-2 p-3 text-center mx-auto" >
+        <img src="~/media/images/VMLogo.png" class=" logo" style="max-height:150px;" />
+    </div>
+    <div class="col-md-10 row">
+        <div class="col-12 py-0 my-auto text-center">
+            <h1>Thank you!</h1>
+            <h3><i>Your order will be ready shortly.</i></h3>
+        </div>
+    </div>
+</header>
+<main class="row p-5">
+    <div class="pr-3 col-12 mb-4">
+        <div class="progress" style="height: 1.5rem;">
+            <div id="progress_bar_step_1" @(Model.Stage == OrderStage.Recieved ? "" : "hidden") class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%"></div>
+            <div id="progress_bar_step_2" @(Model.Stage == OrderStage.InProgress ? "" : "hidden") class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%"></div>
+            <div id="progress_bar_step_3" @(Model.Stage == OrderStage.Ready ? "" : "hidden") class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+            <div id="progress_bar_step_4" @(Model.Stage == OrderStage.Complete ? "" : "hidden") class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        </div>
+        <h5 id="progress-bar-subtitle" class="text-center">
+            <span id="step_1_helper" @(Model.Stage == OrderStage.Recieved ? "" : "hidden")>Step 1: Your order has been recieved...</span>
+            <span id="step_2_helper" @(Model.Stage == OrderStage.InProgress ? "" : "hidden")>Step 2: Your order is cooking...</span>
+            <span id="step_3_helper" @(Model.Stage == OrderStage.Ready ? "" : "hidden")>Step 3: Your order is ready for pickup...</span>
+            <span id="step_4_helper" @(Model.Stage == OrderStage.Complete ? "" : "hidden")>Enjoy your pizza!</span>
+        </h5>
+    </div>
+    <ul class="col-lg-7 list-group">
+        <li id="stage-0" class="list-group-item @Model.GetClassesForListItem(OrderStage.Recieved) d-flex row border order-round mb-2">
+            <div class="col-md-3 d-none d-md-flex">
+                <figure class="my-auto">
+                    <img id="image-0" src="~/media/images/OrderRecieved.png" class="img-fluid rounded-circle @Model.GetClassesForListImg(OrderStage.Recieved)" />
+                </figure>
+            </div>
+            <div class="col-md-9 my-auto px-4">
+                <h3>Order Received</h3>
+                <p>Your order has been sent to our staff and is being prepaired. Please check back soon for updates and thank you for your support. (this window will update automatically if left open)</p>
+            </div>
+        </li>
+        <li id="stage-1" class="list-group-item @Model.GetClassesForListItem(OrderStage.InProgress) d-flex row mb-2 order-round">
+            <div class="col-md-3 d-none d-md-flex">
+                <figure class="my-auto">
+                    <img id="image-1" src="~/media/images/InProgress.png" class="img-fluid rounded-circle @Model.GetClassesForListImg(OrderStage.InProgress)" />
+                </figure>
+            </div>
+            <div class="col-md-9 my-auto px-4">
+                <h3>In-Progress</h3>
+                <p>Your order is currently in the oven and should be ready for pickup soon! Typical cooking times are between 15 - 20 minutes.</p>
+            </div>
+        </li>
+        <li id="stage-2" class="list-group-item @Model.GetClassesForListItem(OrderStage.Ready) d-flex row border order-round mb-2">
+            <div class="col-md-3 d-none d-md-flex">
+                <figure class="my-auto">
+                    <img id="image-2" src="~/media/images/ReadyForPickup.png" class="img-fluid rounded-circle @Model.GetClassesForListImg(OrderStage.Ready)" />
+                </figure>
+            </div>
+            <div class="col-md-9 my-auto px-4">
+                <h3>Ready For Pickup</h3>
+                <p>Time for the exciting part! Your order is ready for pickup at our deli! We look forward to serving you.</p>
+            </div>
+        </li>
+        <li id="stage-3" class="list-group-item @Model.GetClassesForListItem(OrderStage.Complete) d-flex row border order-round mb-2">
+            <div class="col-md-3 d-none d-md-flex">
+                <figure class="my-auto">
+                    <img id="image-3" src="~/media/images/Complete.png" class="img-fluid border-rounded @Model.GetClassesForListImg(OrderStage.Complete)" />
+                </figure>
+            </div>
+            <div class="col-md-9 my-auto px-4">
+                <h3>Complete</h3>
+                <p>Thank you for your patronage, please enjoy your pizza and don't forget to leave us a good review!</p>
+            </div>
+        </li>
+    </ul>
+    <div class="col-lg-5 px-3 flex-grow-1 d-flex">
+        <div class="bg-secondary rounded rounded-2 flex-grow-1 p-2 text-white d-flex flex-column">
+            <h3 class="text-center">Your Order</h3>
+            <h5>@Model.Customer?.Name</h5>
+            <h5>Order Placed: <span id="localized_time"></span> </h5>
+            <h5>Items: @Model.Order.LineItems.Count</h5>
+            <ol>
+                @foreach (var item in Model.Order.LineItems)
+                {
+                    <li>
+                        @item.MenuItem?.MenuItemVarients?[item.MenuItemVarient].Descriptor @item.MenuItem?.Name &mdash; @item.LinePrice.ToString("C")
+                        <ul class="fa-ul">
+                            @foreach (var add in item.AddedIngredients)
+                            {
+                                <li><span class="fa-li"><i class="fa-light fa-square-plus fa-lg" ></i></span>@add.Name</li>
+                            }
+                        </ul>
+                        <ul class="fa-ul">
+                            @foreach (var remove in item.RemovedIngredients)
+                            {
+                                <li><span class="fa-li"><i class="fa-light fa-square-minus fa-lg" ></i></span>@remove.Name</li>
+                            }
+                        </ul>
+                        @if (item.LineComments != null)
+                        {
+                            
+                                <div class="h6 mb-0">Comments:</div>
+                                <div style="list-style: none">@item.LineComments</div>
+                            
+                        }
+                    </li>
+                }
+            </ol>
+            <div class="flex-grow-1 d-flex flex-column">
+                <p class="mt-auto mb-0">
+                    <span class="h5">Subtotal:</span> @Model.Order.Subtotal.ToString("C")
+                </p>
+                <p class="mb-0">
+                    <span class="h5">Tax:</span>  @Model.Order.Tax.ToString("C")
+                </p>
+                <p class="mb-0">
+                    <span class="h5">Total:</span>  @Model.Order.Total.ToString("C")
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <!-- Interactivity Scripts -->
+    <script>
+        var orderTimeUTC = new Date("@Model.OrderPlaced");
+        var offset = new Date().getTimezoneOffset();
+        var orderTimeLocal = new Date(orderTimeUTC.getTime() - offset * 60000).toLocaleTimeString()
+
+        $("#localized_time").text(orderTimeLocal);
+
+        setTimeout(() => {
+            window.location.reload();
+        }, 60000);
+    </script>
+}

@@ -1,0 +1,73 @@
+﻿@using OpenOrderSystem.Data.DataModels
+@using OpenOrderSystem.ViewModels.Shared
+@using OpenOrderSystem.Areas.Staff.ViewModels.Categories.Ingredients;
+    using OpenOrderSystem.Areas.Staff.ViewModels.Categories.Ingredients
+@model CreateEditVM
+
+@{
+    ViewData["Title"] = Model.Action == CrudAction.Create ? "New Ingredient Category" : "Edit Ingredient Category";
+    Layout = "_LayoutManager";
+}
+
+
+<h1>@(Model.Action == CrudAction.Edit ? $"Edit #{Model.Id}" : "New Ingredient Category")</h1>
+
+<h4>@(Model.Action == CrudAction.Edit ? Model.Name : "")</h4>
+<hr />
+<div class="row bg-dark px-2 gap-2 py-4">
+    <div class="col-4">
+        <h5>Category Information</h5>
+        <form id="ce_form" action="@(Model.Action == CrudAction.Edit ? "Edit" : "Create")" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mb-1">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-1">
+                <label asp-for="ExtrasAllowed" class="control-label"></label>
+                <input asp-for="ExtrasAllowed" class="form-select text-center" />
+                <span asp-validation-for="ExtrasAllowed" class="text-danger"></span>
+            </div>
+            <input asp-for="Id" hidden />
+            <input asp-for="IngredientIds" hidden />
+            @Html.AntiForgeryToken()
+        </form>
+    </div>
+    <div class="col-4">
+        <span asp-validation-for="IngredientIds" class="text-danger"></span>
+        <h5>Ingredients</h5>
+        <div class="row row-cols-2">
+            @foreach (var ingredient in Model.Ingredients)
+            {
+                <div class="form-check col">
+                    <input class="ingredient-check form-check-input" type="checkbox" value="@ingredient.Id" id="ingredient_check_@ingredient.Id" @(ingredient.Categories?.AsQueryable().FirstOrDefault(ic => ic.Id == Model.Id) != null ? "checked" : "")>
+                    <label class="form-check-label" for="ingredient_check_@ingredient.Id">@ingredient.Name</label>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="d-flex w-100 text-end">
+        <div class="ms-auto">
+            <button id="submit" class="btn btn-primary px-5 mb-1"><i class="fa-sharp fa-floppy-disk me-1"></i> Save</button>
+            <br />
+            <a class="" asp-action="Index">Back to List</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $('#submit').on('click', () => {
+            var ids = [];
+            $('.ingredient-check:checked').each((i, elm) => {
+                ids.push(+$(elm).val());
+            });
+            $('#IngredientIds').val(JSON.stringify(ids));
+            $('#ce_form').submit();
+        });
+    </script>
+}

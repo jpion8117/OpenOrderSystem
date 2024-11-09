@@ -1,0 +1,155 @@
+﻿@* @using OpenOrderSystem.Data.DataModels
+@using OpenOrderSystem.ViewModels.Home
+
+@model HomeIndexVM
+
+@{
+    var online = Model.CartId != "OFFLINE_MODE";
+    ViewData["Title"] = (!online ? "[VIEW ONLY] " : "") + "Menu";
+}
+@if (ViewBag.Error != "" && online)
+{
+    <div class="alert alert-warning alert-dismissible fade show" style="z-index: 100" role="alert">
+        <strong>Error Submitting Order!</strong> @ViewBag.Error
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!online)
+{
+    <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading fa-fade">View Only</h4>
+        <p>You are currently viewing the menu in "View Only" mode. This page will periodically check to see if online ordering is available again and take you to the ordering page automatically if it becomes available.</p>
+    </div>
+}
+
+<div class="mt-3">
+    @if (online)
+    {
+        <a href="https://villmkt.com/" class="btn btn-secondary" role="button">
+            <i class="fa-thin fa-arrow-left"></i>
+            Back to site
+        </a>        
+    }
+</div>
+<div class="m-4">
+
+    <div class="row w-100 mx-auto my-auto h-25">
+        <div class="">
+            @if (online)
+            {
+                <a id="cart_btn" style="position:fixed; top:15px; right:15px; z-index:2;opacity:.95; text-decoration:none;" class="btn ccs-btn btn-secondary px-2 rounded-2 p-1" data-ccs-action="view" data-ccs-id="@Model.CartId" title="View cart">
+                    <span id="" class="fa-layers fa-fw">
+                        <i class="fa-sharp fa-thin fa-cart-shopping"></i>
+                    </span> View Cart <span id="cart_counter" class="" style="font-size: 0.75rem;"></span>
+                </a>
+            }
+        </div>
+
+        <div class="img-logo col heading4  my-auto ">
+            <img class="img-fluid pe-3" src="/media/images/VMLogo.png" alt="Village Market Logo" style="width:100%; ">
+        </div>
+        <div class=" col heading4 my-auto text-start text-lg-center">Menu</div>
+
+    </div>
+    <div class="accordion" id="Menu_Accordion">
+    @foreach (var cat in Model.Categories)
+    {    
+  
+            <div class="accordion-item">
+                <h2 class="accordion-header"  id="Category_Header_@cat.Name.Replace(" ", "_")">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#Category_Body_@cat.Name.Replace(" ", "_")" aria-expanded="true" aria-controls="Category_Body_@cat.Name.Replace(" ", "_")" style="font-size:.8em;">
+                        @Html.DisplayFor(modelItem => cat.Name)
+                    </button>
+                </h2>
+                <div id="Category_Body_@cat.Name.Replace(" ", "_")" class="accordion-collapse collapse show" aria-labelledby="Category_Header_@cat.Name.Replace(" ", "_")">
+                    <div class="accordion-body">
+                        <ul class="list-group">
+                            @foreach (var item in Model.Menu.AsQueryable().Where(mi => mi.ProductCategoryId == cat.Id).ToList())
+                            {
+                                <li class="list-group-item d-flex row" style="line-height:30px;">
+                                    <div class="col-sm-8 my-auto col-md-3 col-lg-3 p-sm-5 px-sm-5">
+                                        <img class=" pe-3 " src="@item.ImageUrl" alt="@item.Name" style="width:100%;">
+                                    </div>
+                                    <div class="col-9">
+                                        <div class="row fw-bolder" style="font-size:1.4em;">
+                                            @Html.DisplayFor(modelItem => item.Name)
+                                        </div>
+                                        <div class="row w-100 d-block mb-2">
+                                            @Html.DisplayFor(modelItem => item.Description)
+                                        </div>
+
+                                        @for (var i = 0; i < item?.MenuItemVarients?.Count; ++i)
+                                        {
+                                            var size = item?.MenuItemVarients?[i] ?? new MenuItemVarient();
+                                            <div class="row m-0 " style="padding:0px;margin:0px;">
+                                                <div class="col-3 fw-bolder" style="padding:0px;margin:0px;">
+                                                    <p > @Html.DisplayFor(modelItem => size.Descriptor)........</p>
+
+                                                </div>
+                                                <div class="col-3 fw-bolder pe-sm-5">
+                                                    <p> @size.Price.ToString("C")</p>
+                                                </div>
+                                                <div class="col-3 d-block d-lg-none"></div>
+                                                <div class="col-3 m-0 ps-sm-5 pe-lg-5" style="margin:0px;">
+                                                    @if (online)
+                                                    {
+                                                        <a class="ccs-btn ccs-btn-add " data-ccs-action="add" data-ccs-id="@Model.CartId" data-ccs-item-id="@item?.Id" data-ccs-varient-index="@i">
+                                                            <i class="fa-sharp   fa-thin fa-bag-shopping-plus fa-lg rounded-2 p-1 bag-icon" title="Add to cart" style="color: #c50d25;border:1px solid #c50d25;"></i>
+                                                        </a>
+                                                    }
+                                                </div>
+                                                
+                                            </div>
+                                           
+                                        }
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+   
+    }
+    </div>
+
+
+</div>
+<div id="modal_container"></div>
+@section Scripts {
+    @if (online)
+    {
+        <script src="~/js/CartClient.js"></script>
+        <script>
+            $.ajax({
+                method: 'GET',
+                url: '/API/Cart/Details?cartId=@(Model.CartId)',
+                success: (data, success, xhr) => {
+                    if (data && data.cart.itemCount > 0) {
+                        const badge = 'mx-2 px-2 fw-bold translate-middle p-1 bg-info border rounded-pill';
+                        $('#cart_counter').text(data.cart.itemCount > 0 ? data.cart.itemCount : "");
+                        $('#cart_counter').addClass(badge);
+                    }
+                }
+            });
+        </script>
+    }
+    else
+    {
+        <script>
+            setInterval(() => {
+                $.ajax({
+                    method: 'GET',
+                    url: '/Home/TestOnline',
+                    success: (data, success, xhr) => {
+                        console.log("checked ordering status...")
+                        if (data) { 
+                            document.location.assign('/');
+                        }
+                    }
+                })
+            }, 30000);
+        </script>
+    }
+} *@

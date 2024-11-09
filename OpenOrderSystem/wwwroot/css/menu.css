@@ -1,0 +1,31 @@
+div {
+    font-family: "Thasadith", sans-serif;
+    font-size: 1em;
+}
+
+div.heading4 {
+    font-family: 'Thasadith', serif;
+    font-weight: 1000;
+    color: #c50d25;
+    background-color: inherent;
+    font-size: 30px;
+    line-height: 48px;
+    padding: 0px;
+    
+    text-align: left;
+}
+.truncate-text{
+    max-width: 100%; /* Allow the div to expand with the page */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Number of lines to show */
+    -webkit-box-orient: vertical;
+
+    line-height: 1.2; /* Adjust line height if needed */
+    max-height: 2.4em; /* Adjust max height to match line height * number of lines */
+    white-space: normal; /* Ensure wrapping behavior */
+}
+.bag-icon:hover {
+    background-color: #eccaca;
+}

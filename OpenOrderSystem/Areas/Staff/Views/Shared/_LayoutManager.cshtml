@@ -1,0 +1,43 @@
+﻿@{
+    Layout = "_HTMLBaseLayout";
+}
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}
+@section AppendHead {
+    <link rel="stylesheet" href="~/css/staffArea.css" />
+    @await RenderSectionAsync("AppendHead", required: false)
+}
+@section PrependBody {
+    @await RenderSectionAsync("PrependBody", required: false)
+}
+@section AppendBody {
+    @await RenderSectionAsync("AppendBody", required: false)
+}
+
+<div class="h-100 row p-0" data-bs-theme="dark">
+    <nav class="manager-sidebar-nav nav nav-underline flex-column h-100 ps-5 col-2">
+        <h3 class="nav-item">Administration</h3>
+        <a class="nav-link @(Context.Request.Path.ToString().ToLower().Contains("menu") ? "active" : "")" asp-controller="Menu" asp-action="Index">Menu</a>
+        <a class="nav-link @(Context.Request.Path.ToString().ToLower().Contains("media") ? "active" : "")" asp-controller="Media" asp-action="Index">Media</a>
+        <a class="nav-link @(Context.Request.Path.ToString().ToLower().Contains("ingredients") ? "active" : "")" asp-controller="Ingredients" asp-action="Index">Ingredients</a>
+        <div class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle @(Context.Request.Path.ToString().ToLower().Contains("categories") ? "active" : "")" data-bs-toggle="dropdown">Categories</a>
+            <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">Category Editor</h6></li>
+                <li><hr class="dropdown-divider" /></li>
+                <li><a class="dropdown-item @(Context.Request.Path.ToString().ToLower().Contains("categories/product") ? "active" : "")" asp-controller="ProductCategories" asp-action="Index">Menu</a></li>
+                <li><a class="dropdown-item @(Context.Request.Path.ToString().ToLower().Contains("categories/ingredient") ? "active" : "")" asp-controller="IngredientCategories" asp-action="Index">Ingredients</a></li>
+            </ul>                        
+        </div>
+        @* <a class="nav-link" href="#">Hours</a> *@
+        <a class="nav-link @(User.IsInRole("admin") ? "" : "disabled") @(Context.Request.Path.ToString().ToLower().Contains("users") ? "active" : "")" asp-controller="Users" asp-action="Index">Users</a>
+        <form class="flex-grow-1" asp-area="Identity" asp-controller="Account" asp-action="Logout" method="post">
+            <button type="submit" class="nav-link">Logout</button>
+        </form>
+    </nav>
+    <div class="col manager-main">
+        @RenderBody()
+    </div>
+</div>
