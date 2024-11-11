@@ -35,7 +35,8 @@ bob.Services.AddIdentity<IdentityUser,IdentityRole>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-bob.Services.AddControllersWithViews();
+bob.Services
+    .AddControllersWithViews();
 
 var app = bob.Build();
 
